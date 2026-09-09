@@ -20,20 +20,19 @@ export const Header: React.FC<HeaderProps> = ({
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    async function fetchSession() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.success) {
+          setCurrentUser(data.data);
+        }
+      } catch {
+        // ignore
+      }
+    }
     fetchSession();
   }, []);
-
-  async function fetchSession() {
-    try {
-      const res = await fetch('/api/auth/me');
-      const data = await res.json();
-      if (data.success) {
-        setCurrentUser(data.data);
-      }
-    } catch {
-      // ignore
-    }
-  }
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

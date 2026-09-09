@@ -47,6 +47,14 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
 
+  const highlightTokenByTag = (tag: string) => {
+    const allTokens = data?.record.tokens || data?.document?.tokens || [];
+    const matched = allTokens.find(t => t.fieldTag === tag);
+    if (matched) {
+      setSelectedTokenId(matched.id);
+    }
+  };
+
   useEffect(() => {
     fetchRecord();
   }, [id]);
@@ -575,9 +583,16 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
             <div className="divide-y divide-slate-100 text-xs">
               
               {/* Owner Name */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
+              <div 
+                onClick={() => highlightTokenByTag('OWNER_NAME')} 
+                title="Click to highlight matching OCR bounding box on document"
+                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+              >
                 <div className="w-1/3">
-                  <div className="font-bold text-slate-800">Owner Name</div>
+                  <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
+                    Owner Name
+                    <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
+                  </div>
                   <div className="text-[10px] text-slate-400">Current Legal Holder</div>
                 </div>
                 <div className="flex-1 font-semibold text-slate-900">
@@ -594,7 +609,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                     {Math.round(record.ownerName.confidence * 100)}%
                   </span>
                   <button
-                    onClick={() => handleStartEdit('ownerName', record.ownerName.value)}
+                    onClick={(e) => { e.stopPropagation(); handleStartEdit('ownerName', record.ownerName.value); }}
                     className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
                   >
                     Edit
@@ -603,9 +618,16 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               {/* Father / Husband Name */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
+              <div 
+                onClick={() => highlightTokenByTag('FATHER_NAME')} 
+                title="Click to highlight matching OCR bounding box on document"
+                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+              >
                 <div className="w-1/3">
-                  <div className="font-bold text-slate-800">Father / Husband Name</div>
+                  <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
+                    Father / Husband Name
+                    <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
+                  </div>
                 </div>
                 <div className="flex-1 text-slate-900 font-medium">
                   {record.fatherOrHusbandName.value}
@@ -615,7 +637,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                     {Math.round(record.fatherOrHusbandName.confidence * 100)}%
                   </span>
                   <button
-                    onClick={() => handleStartEdit('fatherOrHusbandName', record.fatherOrHusbandName.value)}
+                    onClick={(e) => { e.stopPropagation(); handleStartEdit('fatherOrHusbandName', record.fatherOrHusbandName.value); }}
                     className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
                   >
                     Edit
@@ -624,9 +646,16 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               {/* Survey Number */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
+              <div 
+                onClick={() => highlightTokenByTag('SURVEY_NUMBER')} 
+                title="Click to highlight matching OCR bounding box on document"
+                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+              >
                 <div className="w-1/3">
-                  <div className="font-bold text-slate-800">Survey Number / Sub-division</div>
+                  <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
+                    Survey Number / Sub-division
+                    <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
+                  </div>
                 </div>
                 <div className="flex-1 font-mono font-bold text-slate-900">
                   {record.surveyNumber.value} / {record.subdivisionNumber.value}
@@ -636,7 +665,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                     {Math.round(record.surveyNumber.confidence * 100)}%
                   </span>
                   <button
-                    onClick={() => handleStartEdit('surveyNumber', record.surveyNumber.value)}
+                    onClick={(e) => { e.stopPropagation(); handleStartEdit('surveyNumber', record.surveyNumber.value); }}
                     className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
                   >
                     Edit
@@ -645,9 +674,16 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               {/* Land Area */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
+              <div 
+                onClick={() => highlightTokenByTag('LAND_AREA')} 
+                title="Click to highlight matching OCR bounding box on document"
+                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+              >
                 <div className="w-1/3">
-                  <div className="font-bold text-slate-800">Land Area (Extent)</div>
+                  <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
+                    Land Area (Extent)
+                    <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
+                  </div>
                   {record.landArea.explanation && (
                     <div className="text-[10px] text-amber-700 font-normal">{record.landArea.explanation}</div>
                   )}
@@ -660,7 +696,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                     {Math.round(record.landArea.confidence * 100)}%
                   </span>
                   <button
-                    onClick={() => handleStartEdit('landArea', record.landArea.value)}
+                    onClick={(e) => { e.stopPropagation(); handleStartEdit('landArea', record.landArea.value); }}
                     className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
                   >
                     Edit

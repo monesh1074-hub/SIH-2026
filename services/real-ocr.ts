@@ -76,7 +76,7 @@ export class RealOCRService {
     }
 
     // Direct filesystem path
-    if (fs.existsSync(rawPath)) return rawPath;
+    if (fs.existsSync(/*turbopackIgnore: true*/ rawPath)) return rawPath;
 
     // Fallback search in public
     const inPublic = path.join(process.cwd(), 'public', 'documents', path.basename(rawPath));
