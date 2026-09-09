@@ -1,0 +1,22 @@
+# Images and presentations directory
+image/
+*.pptx
+
+# Python virtual environment & cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Dependencies & Build artifacts
+node_modules/
+.next/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment and local files
+.env*.local
+.DS_Store
+Thumbs.db
+*.log
