@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -46,3 +47,27 @@ image/
 .venv/
 venv/
 __pycache__/
+=======
+# Images and presentations directory
+image/
+*.pptx
+
+# Python virtual environment & cache
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Dependencies & Build artifacts
+node_modules/
+.next/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment and local files
+.env*.local
+.DS_Store
+Thumbs.db
+*.log
+>>>>>>> 882933ad20718f5cb9ab99bc3de88b811f71a2a1
