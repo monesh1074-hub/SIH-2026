@@ -34,7 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentUser = DEMO_USERS[0], o
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Documents', href: '/documents', icon: FileText, badge: '5', permission: 'DOCUMENT_VIEW' },
+    { name: 'Documents', href: '/documents/upload', icon: FileText, badge: '31', permission: 'DOCUMENT_VIEW' },
     { name: 'Land Records', href: '/records', icon: FileSpreadsheet, permission: 'RECORD_VIEW' },
     { name: 'Verification Queue', href: '/verification', icon: CheckSquare, badge: '3', badgeColor: 'bg-amber-100 text-amber-800', permission: 'VERIFICATION_VIEW' },
     { name: 'Cadastral GIS Map', href: '/gis', icon: MapPin, permission: 'GIS_VIEW' },

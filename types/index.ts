@@ -121,7 +121,8 @@ export type DocumentStatus =
   | 'VERIFICATION_REQUIRED'
   | 'VERIFIED'
   | 'FLAGGED'
-  | 'FAILED';
+  | 'FAILED'
+  | 'REJECTED';
 
 export interface DocumentRecord {
   id: string;
