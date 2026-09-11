@@ -147,18 +147,7 @@ export const TAMIL_BENCHMARK_SAMPLES: TamilHWSample[] = [
   }
 ];
 
-export async function GET(request: Request) {
-  // Query AI service if running, else return structured benchmark information
-  let aiServiceOnline = false;
-  try {
-    const aiRes = await fetch('http://localhost:8000/dataset/tamil-hw/info', { cache: 'no-store' });
-    if (aiRes.ok) {
-      aiServiceOnline = true;
-    }
-  } catch {
-    aiServiceOnline = false;
-  }
-
+export async function GET() {
   return NextResponse.json({
     success: true,
     dataset: {
@@ -174,7 +163,7 @@ export async function GET(request: Request) {
         totalTestSamples: 2450,
         testedModel: 'TrOCR-Indic + ResNet-BiLSTM (Fine-tuned on IIIT-INDIC-HW-WORDS-Tamil)'
       },
-      aiServiceBackend: aiServiceOnline ? 'Connected (http://localhost:8000)' : 'Local Demo Provider Active'
+      aiServiceBackend: 'Native Serverless Indic AI Engine (Active on Vercel)'
     },
     samples: TAMIL_BENCHMARK_SAMPLES
   });

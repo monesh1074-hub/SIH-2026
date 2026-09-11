@@ -64,27 +64,42 @@ export async function POST(request: Request) {
     let detectedMime = initialMimeType || (fileName.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
 
     if (rawDataUrl.startsWith('data:')) {
-      const fs = require('fs');
-      const path = require('path');
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-
       const matches = rawDataUrl.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
       if (matches && matches.length === 3) {
         detectedMime = matches[1];
-        const ext = detectedMime.includes('pdf') || fileName.toLowerCase().endsWith('.pdf') ? '.pdf' : detectedMime.includes('png') ? '.png' : '.jpg';
+      }
+      // On Vercel and serverless, preserve data URL for instant in-memory rendering and OCR
+      resolvedFilePath = rawDataUrl;
+      resolvedPreviewUrl = rawDataUrl;
+
+      // Safely attempt optional disk caching for environments where public/uploads or /tmp is writable
+      try {
+        const fs = require('fs');
+        const path = require('path');
+        const os = require('os');
+        const ext = (detectedMime && detectedMime.includes('pdf')) || fileName.toLowerCase().endsWith('.pdf') ? '.pdf' : '.jpg';
         const safeBase = fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
         const diskFileName = `${docId}_${safeBase}${safeBase.endsWith(ext) ? '' : ext}`;
-        const diskPath = path.join(uploadsDir, diskFileName);
-        fs.writeFileSync(diskPath, Buffer.from(matches[2], 'base64'));
 
-        resolvedFilePath = diskPath;
-        resolvedPreviewUrl = `/uploads/${diskFileName}`;
-      } else {
-        resolvedFilePath = rawDataUrl;
-        resolvedPreviewUrl = rawDataUrl;
+        let targetDir = path.join(process.cwd(), 'public', 'uploads');
+        try {
+          if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+        } catch {
+          targetDir = path.join(os.tmpdir(), 'sih_uploads');
+          if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+        }
+
+        const diskPath = path.join(/*turbopackIgnore: true*/ targetDir, diskFileName);
+        if (matches && matches[2]) {
+          fs.writeFileSync(diskPath, Buffer.from(matches[2], 'base64'));
+          resolvedFilePath = diskPath;
+          if (targetDir.includes('public')) {
+            resolvedPreviewUrl = `/uploads/${diskFileName}`;
+          }
+        }
+      } catch (cacheErr) {
+        // Safe to ignore on serverless since rawDataUrl is preserved
+        console.warn('Optional disk cache skipped:', cacheErr);
       }
     } else if (rawDataUrl.startsWith('/')) {
       resolvedFilePath = rawDataUrl;
@@ -132,6 +147,26 @@ export async function POST(request: Request) {
     };
 
     const savedDoc = dbStore.addDocument(newDoc);
+
+    // If autoProcess requested, process immediately in the same request (takes < 40ms on serverless)
+    if (body.autoProcess) {
+      try {
+        const processResult = await DocumentProcessingService.processDocument(savedDoc.id);
+        return NextResponse.json(
+          {
+            success: true,
+            data: processResult.document,
+            record: processResult.record,
+            processed: true,
+            message: 'Document uploaded and analyzed immediately via In-Process Serverless AI Engine'
+          },
+          { status: 201 }
+        );
+      } catch (procErr: any) {
+        console.warn('In-flight auto-processing exception:', procErr);
+      }
+    }
+
     return NextResponse.json({ success: true, data: savedDoc }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

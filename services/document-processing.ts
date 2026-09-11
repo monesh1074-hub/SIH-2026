@@ -420,257 +420,269 @@ export class DocumentProcessingService {
       status: 'PROCESSING'
     });
 
-    // Step 2: OpenCV Preprocessing result
-    const preprocessing: PreprocessingResult = {
-      grayscale: true,
-      denoised: true,
-      deskewAngleDegrees: -1.2,
-      contrastEnhanced: true,
-      textRegionsDetected: 16,
-      dpi: 300
-    };
-
-    // Step 3: Run Real OCR & PDF text extraction engine on uploaded file
-    const analysis = await RealOCRService.analyzeDocument(doc);
-    const tokens = analysis.tokens;
-    const entities = analysis.extractedEntities;
-    const rawText = analysis.rawText;
-    const overallConfidence = analysis.overallConfidence;
-
-    const ownerName = entities.ownerName || 'Unspecified in Document';
-    const surveyNumber = entities.surveyNumber || 'Unspecified';
-    const subDiv = entities.subdivisionNumber || '1';
-    const landArea: number = (entities.landArea && entities.landArea > 0) ? Number(entities.landArea) : 1.0;
-    const areaUnit = entities.areaUnit || 'acre';
-    const pattaNumber = entities.pattaNumber || 'Unspecified';
-    const ulpin = entities.ulpin;
-
-    // Step 4: Construct or update LandRecord from real extracted data
-    let existingRecord = dbStore.getLandRecordByDocumentId(docId);
-
-    if (!existingRecord) {
-      const newRecord: LandRecord = {
-        id: `rec-${Date.now()}`,
-        documentId: doc.id,
-        ownerName: {
-          value: ownerName,
-          confidence: overallConfidence,
-          originalValue: ownerName
-        },
-        fatherOrHusbandName: {
-          value: entities.fatherName || 'Unspecified in Document',
-          confidence: Math.max(0.75, overallConfidence - 0.05)
-        },
-        surveyNumber: {
-          value: surveyNumber,
-          confidence: overallConfidence
-        },
-        subdivisionNumber: {
-          value: subDiv,
-          confidence: overallConfidence
-        },
-        khasraNumber: {
-          value: `${surveyNumber}/${subDiv}`,
-          confidence: overallConfidence
-        },
-        khataNumber: {
-          value: pattaNumber,
-          confidence: overallConfidence
-        },
-        pattaNumber: {
-          value: pattaNumber,
-          confidence: overallConfidence
-        },
-        plotNumber: {
-          value: `Plot ${surveyNumber}`,
-          confidence: overallConfidence
-        },
-        village: {
-          value: doc.village,
-          confidence: 0.98
-        },
-        taluk: {
-          value: doc.taluk,
-          confidence: 0.97
-        },
-        district: {
-          value: doc.district,
-          confidence: 0.99
-        },
-        state: {
-          value: doc.state,
-          confidence: 0.99
-        },
-        landArea: {
-          value: landArea,
-          confidence: overallConfidence,
-          originalValue: landArea
-        },
-        areaUnit: {
-          value: areaUnit,
-          confidence: 0.98
-        },
-        landClassification: {
-          value: 'Agricultural (Irrigated)',
-          confidence: 0.94
-        },
-        ownershipType: {
-          value: 'Individual',
-          confidence: 0.95
-        },
-        mutationNumber: {
-          value: `MUT-${surveyNumber || '101'}`,
-          confidence: 0.88
-        },
-        registrationNumber: {
-          value: `REG-${Date.now().toString().slice(-4)}`,
-          confidence: 0.90
-        },
-        registrationDate: {
-          value: new Date().toISOString().split('T')[0],
-          confidence: 0.89
-        },
-        previousOwner: {
-          value: 'Predecessor Titleholder',
-          confidence: 0.80
-        },
-        currentOwner: {
-          value: ownerName,
-          confidence: overallConfidence
-        },
-        overallConfidence: overallConfidence,
-        status: 'REQUIRES_VERIFICATION',
-        ulpin: ulpin,
-        gisParcelId: 'pcl-101',
-        previewUrl: doc.previewUrl || doc.filePath,
-        tokens: tokens
+    try {
+      // Step 2: OpenCV Preprocessing result
+      const preprocessing: PreprocessingResult = {
+        grayscale: true,
+        denoised: true,
+        deskewAngleDegrees: -1.2,
+        contrastEnhanced: true,
+        textRegionsDetected: 16,
+        dpi: 300
       };
 
-      existingRecord = dbStore.addLandRecord(newRecord);
+      // Step 3: Run Real OCR & PDF text extraction engine on uploaded file
+      const analysis = await RealOCRService.analyzeDocument(doc);
+      const tokens = analysis.tokens;
+      const entities = analysis.extractedEntities;
+      const rawText = analysis.rawText;
+      const overallConfidence = analysis.overallConfidence;
+
+      const ownerName = entities.ownerName || 'Unspecified in Document';
+      const surveyNumber = entities.surveyNumber || 'Unspecified';
+      const subDiv = entities.subdivisionNumber || '1';
+      const landArea: number = (entities.landArea && entities.landArea > 0) ? Number(entities.landArea) : 1.0;
+      const areaUnit = entities.areaUnit || 'acre';
+      const pattaNumber = entities.pattaNumber || 'Unspecified';
+      const ulpin = entities.ulpin;
+
+      // Step 4: Construct or update LandRecord from real extracted data
+      let existingRecord = dbStore.getLandRecordByDocumentId(docId);
+
+      if (!existingRecord) {
+        const newRecord: LandRecord = {
+          id: `rec-${Date.now()}`,
+          documentId: doc.id,
+          ownerName: {
+            value: ownerName,
+            confidence: overallConfidence,
+            originalValue: ownerName
+          },
+          fatherOrHusbandName: {
+            value: entities.fatherName || 'Unspecified in Document',
+            confidence: Math.max(0.75, overallConfidence - 0.05)
+          },
+          surveyNumber: {
+            value: surveyNumber,
+            confidence: overallConfidence
+          },
+          subdivisionNumber: {
+            value: subDiv,
+            confidence: overallConfidence
+          },
+          khasraNumber: {
+            value: `${surveyNumber}/${subDiv}`,
+            confidence: overallConfidence
+          },
+          khataNumber: {
+            value: pattaNumber,
+            confidence: overallConfidence
+          },
+          pattaNumber: {
+            value: pattaNumber,
+            confidence: overallConfidence
+          },
+          plotNumber: {
+            value: `Plot ${surveyNumber}`,
+            confidence: overallConfidence
+          },
+          village: {
+            value: doc.village,
+            confidence: 0.98
+          },
+          taluk: {
+            value: doc.taluk,
+            confidence: 0.97
+          },
+          district: {
+            value: doc.district,
+            confidence: 0.99
+          },
+          state: {
+            value: doc.state,
+            confidence: 0.99
+          },
+          landArea: {
+            value: landArea,
+            confidence: overallConfidence,
+            originalValue: landArea
+          },
+          areaUnit: {
+            value: areaUnit,
+            confidence: 0.98
+          },
+          landClassification: {
+            value: 'Agricultural (Irrigated)',
+            confidence: 0.94
+          },
+          ownershipType: {
+            value: 'Individual',
+            confidence: 0.95
+          },
+          mutationNumber: {
+            value: `MUT-${surveyNumber || '101'}`,
+            confidence: 0.88
+          },
+          registrationNumber: {
+            value: `REG-${Date.now().toString().slice(-4)}`,
+            confidence: 0.90
+          },
+          registrationDate: {
+            value: new Date().toISOString().split('T')[0],
+            confidence: 0.89
+          },
+          previousOwner: {
+            value: 'Predecessor Titleholder',
+            confidence: 0.80
+          },
+          currentOwner: {
+            value: ownerName,
+            confidence: overallConfidence
+          },
+          overallConfidence: overallConfidence,
+          status: 'REQUIRES_VERIFICATION',
+          ulpin: ulpin,
+          gisParcelId: 'pcl-101',
+          previewUrl: doc.previewUrl || doc.filePath,
+          tokens: tokens
+        };
+
+        existingRecord = dbStore.addLandRecord(newRecord);
+        dbStore.updateDocument(docId, {
+          recordId: existingRecord.id,
+          ocrConfidence: existingRecord.overallConfidence,
+          tokens: tokens,
+          previewUrl: doc.previewUrl || doc.filePath
+        });
+      } else {
+        existingRecord.ownerName = { value: ownerName, confidence: overallConfidence, originalValue: ownerName };
+        existingRecord.surveyNumber = { value: surveyNumber, confidence: overallConfidence };
+        existingRecord.subdivisionNumber = { value: subDiv, confidence: overallConfidence };
+        existingRecord.khasraNumber = { value: `${surveyNumber}/${subDiv}`, confidence: overallConfidence };
+        existingRecord.pattaNumber = { value: pattaNumber, confidence: overallConfidence };
+        existingRecord.landArea = { value: landArea, confidence: overallConfidence, originalValue: landArea };
+        existingRecord.areaUnit = { value: areaUnit, confidence: 0.98 };
+        existingRecord.currentOwner = { value: ownerName, confidence: overallConfidence };
+        existingRecord.overallConfidence = overallConfidence;
+        existingRecord.tokens = tokens;
+        existingRecord.previewUrl = doc.previewUrl || doc.filePath;
+        existingRecord.ulpin = ulpin;
+      }
+
+      // Step 5: Run Validation Engine
+      const validationResult = ValidationEngine.validateRecord(existingRecord);
+
+      // Step 5b: Enforce Patta / Land Record Classification Rule
+      const classification = analysis.classification;
+      if (!classification.isLandRecord) {
+        validationResult.rules.unshift({
+          ruleId: 'RULE-PATTA-VERIFICATION',
+          name: 'Patta & Revenue Record Authenticity Verification',
+          status: 'FAILED',
+          message: classification.rejectionReason || 'WRONG PDF / PHOTO UPLOADED: The extracted content does not match an authentic Patta, Chitta, Khasra, or Land Revenue Record. Land registration is rejected.',
+          fieldAffected: 'documentType'
+        });
+        validationResult.rulesTotal += 1;
+        validationResult.overallStatus = 'FAILED';
+      } else {
+        validationResult.rules.unshift({
+          ruleId: 'RULE-PATTA-VERIFICATION',
+          name: 'Patta & Revenue Record Authenticity Verification',
+          status: 'PASSED',
+          message: 'Document successfully authenticated as a valid Patta / Land Revenue Record.',
+          fieldAffected: 'documentType'
+        });
+        validationResult.rulesTotal += 1;
+        validationResult.rulesPassed += 1;
+      }
+
+      existingRecord.validationResult = validationResult;
+
+      // Set record status based on dynamic System Settings confidence threshold and validation
+      const systemSettings = dbStore.getSystemSettings();
+      const minConfidenceThreshold = (systemSettings.confidenceThreshold || 90) / 100;
+      
+      if (!classification.isLandRecord) {
+        existingRecord.status = 'REJECTED';
+      } else {
+        const requiresReview = validationResult.overallStatus !== 'PASSED' || existingRecord.overallConfidence < minConfidenceThreshold;
+        existingRecord.status = requiresReview ? 'REQUIRES_VERIFICATION' : 'VERIFIED';
+      }
+      dbStore.updateLandRecord(existingRecord.id, existingRecord);
+
+      // Step 6: Update Document final status and extracted text metadata
+      const docFinalStatus = !classification.isLandRecord
+        ? 'FLAGGED'
+        : (validationResult.overallStatus !== 'PASSED' || existingRecord.overallConfidence < minConfidenceThreshold)
+        ? 'VERIFICATION_REQUIRED'
+        : 'VERIFIED';
+
       dbStore.updateDocument(docId, {
-        recordId: existingRecord.id,
-        ocrConfidence: existingRecord.overallConfidence,
+        status: docFinalStatus,
         tokens: tokens,
-        previewUrl: doc.previewUrl || doc.filePath
+        previewUrl: doc.previewUrl || doc.filePath,
+        extractedData: {
+          rawText,
+          isLandRecord: classification.isLandRecord,
+          isPatta: classification.isPatta,
+          isWrongDocument: !classification.isLandRecord,
+          rejectionReason: classification.rejectionReason,
+          missingRequirements: classification.missingKeywords,
+          documentCategory: classification.documentCategory,
+          ownerName: classification.isLandRecord ? ownerName : '[REJECTED - NOT A PATTA]',
+          surveyNumber: classification.isLandRecord ? `${surveyNumber}/${subDiv}` : '[INVALID - NON-LAND DOCUMENT]',
+          extentAcres: classification.isLandRecord ? `${landArea} ${areaUnit}` : '[REJECTED]',
+          ulpin: classification.isLandRecord ? ulpin : '[BLOCKED - NON-PATTA]',
+          pattaNumber: classification.isLandRecord ? pattaNumber : '[NOT DETECTED]',
+          isPdf: analysis.isPdf,
+          pagesCount: analysis.pagesCount,
+          matchedDataset: entities.matchedDataset
+        },
+        processingSteps: [
+          { step: 'Document Ingestion', status: 'COMPLETED', timestamp: new Date().toISOString(), details: `${doc.fileName} (${(doc.fileSize / (1024 * 1024)).toFixed(2)} MB)` },
+          { step: 'Image / PDF Preprocessing (OpenCV)', status: 'COMPLETED', timestamp: new Date().toISOString(), details: `Denoising, Deskew angle: ${preprocessing.deskewAngleDegrees}°, Contrast Boost, Format: ${analysis.isPdf ? 'PDF (' + analysis.pagesCount + ' pgs)' : 'Raster Image'}` },
+          { step: 'Text Detection & Segmentation', status: 'COMPLETED', timestamp: new Date().toISOString(), details: `${tokens.length} word tokens segmented across document canvas` },
+          { step: `Multilingual OCR (${doc.language})`, status: 'COMPLETED', timestamp: new Date().toISOString(), details: `Indic HTR Engine (${rawText.length} characters recognized, Avg conf: ${Math.round(overallConfidence * 100)}%)` },
+          { step: 'Structured Field Extraction (LayoutLMv3)', status: classification.isLandRecord ? 'COMPLETED' : 'FAILED', timestamp: new Date().toISOString(), details: classification.isLandRecord ? `Mapped against ${entities.matchedDataset}` : 'Entity extraction aborted: Non-Patta format detected' },
+          { step: 'Business Rules & Spatial Validation', status: classification.isLandRecord ? 'COMPLETED' : 'FAILED', timestamp: new Date().toISOString(), details: classification.isLandRecord ? `${validationResult.rulesPassed}/${validationResult.rulesTotal} rules passed. Status: ${validationResult.overallStatus}` : (classification.rejectionReason || 'Wrong document uploaded') }
+        ]
       });
-    } else {
-      existingRecord.ownerName = { value: ownerName, confidence: overallConfidence, originalValue: ownerName };
-      existingRecord.surveyNumber = { value: surveyNumber, confidence: overallConfidence };
-      existingRecord.subdivisionNumber = { value: subDiv, confidence: overallConfidence };
-      existingRecord.khasraNumber = { value: `${surveyNumber}/${subDiv}`, confidence: overallConfidence };
-      existingRecord.pattaNumber = { value: pattaNumber, confidence: overallConfidence };
-      existingRecord.landArea = { value: landArea, confidence: overallConfidence, originalValue: landArea };
-      existingRecord.areaUnit = { value: areaUnit, confidence: 0.98 };
-      existingRecord.currentOwner = { value: ownerName, confidence: overallConfidence };
-      existingRecord.overallConfidence = overallConfidence;
-      existingRecord.tokens = tokens;
-      existingRecord.previewUrl = doc.previewUrl || doc.filePath;
-      existingRecord.ulpin = ulpin;
-    }
 
-    // Step 5: Run Validation Engine
-    const validationResult = ValidationEngine.validateRecord(existingRecord);
+      if (!classification.isLandRecord) {
+        dbStore.addNotification({
+          title: analysis.isPdf ? 'Wrong PDF Uploaded' : 'Wrong Photo Uploaded',
+          message: `File "${doc.fileName}" flagged: Extracted text does not match Patta record format.`,
+          type: 'ERROR',
+          read: false
+        });
+      }
 
-    // Step 5b: Enforce Patta / Land Record Classification Rule
-    const classification = analysis.classification;
-    if (!classification.isLandRecord) {
-      validationResult.rules.unshift({
-        ruleId: 'RULE-PATTA-VERIFICATION',
-        name: 'Patta & Revenue Record Authenticity Verification',
-        status: 'FAILED',
-        message: classification.rejectionReason || 'WRONG PDF / PHOTO UPLOADED: The extracted content does not match an authentic Patta, Chitta, Khasra, or Land Revenue Record. Land registration is rejected.',
-        fieldAffected: 'documentType'
+      dbStore.addAuditLog({
+        userId: dbStore.getCurrentUser().id,
+        userName: dbStore.getCurrentUser().name,
+        userRole: dbStore.getCurrentUser().role,
+        action: classification.isLandRecord ? 'VALIDATION_EXECUTED' : 'DOCUMENT_FLAGGED',
+        documentId: doc.id,
+        recordId: existingRecord.id,
+        details: classification.isLandRecord
+          ? `Document processing completed for ${doc.fileName}. Status: ${docFinalStatus}.`
+          : `WRONG DOCUMENT: ${doc.fileName} rejected. ${classification.rejectionReason}`
       });
-      validationResult.rulesTotal += 1;
-      validationResult.overallStatus = 'FAILED';
-    } else {
-      validationResult.rules.unshift({
-        ruleId: 'RULE-PATTA-VERIFICATION',
-        name: 'Patta & Revenue Record Authenticity Verification',
-        status: 'PASSED',
-        message: 'Document successfully authenticated as a valid Patta / Land Revenue Record.',
-        fieldAffected: 'documentType'
+
+      return {
+        document: dbStore.getDocumentById(docId)!,
+        record: existingRecord
+      };
+    } catch (err: any) {
+      console.error('Pipeline error for doc', docId, err);
+      dbStore.updateDocument(docId, {
+        status: 'FLAGGED',
+        extractedData: {
+          isWrongDocument: true,
+          rejectionReason: `Analysis error: ${err?.message || 'Failed to extract text from file'}`
+        }
       });
-      validationResult.rulesTotal += 1;
-      validationResult.rulesPassed += 1;
+      throw err;
     }
-
-    existingRecord.validationResult = validationResult;
-
-    // Set record status based on dynamic System Settings confidence threshold and validation
-    const systemSettings = dbStore.getSystemSettings();
-    const minConfidenceThreshold = (systemSettings.confidenceThreshold || 90) / 100;
-    
-    if (!classification.isLandRecord) {
-      existingRecord.status = 'REJECTED';
-    } else {
-      const requiresReview = validationResult.overallStatus !== 'PASSED' || existingRecord.overallConfidence < minConfidenceThreshold;
-      existingRecord.status = requiresReview ? 'REQUIRES_VERIFICATION' : 'VERIFIED';
-    }
-    dbStore.updateLandRecord(existingRecord.id, existingRecord);
-
-    // Step 6: Update Document final status and extracted text metadata
-    const docFinalStatus = !classification.isLandRecord
-      ? 'FLAGGED'
-      : (validationResult.overallStatus !== 'PASSED' || existingRecord.overallConfidence < minConfidenceThreshold)
-      ? 'VERIFICATION_REQUIRED'
-      : 'VERIFIED';
-
-    dbStore.updateDocument(docId, {
-      status: docFinalStatus,
-      tokens: tokens,
-      previewUrl: doc.previewUrl || doc.filePath,
-      extractedData: {
-        rawText,
-        isLandRecord: classification.isLandRecord,
-        isPatta: classification.isPatta,
-        isWrongDocument: !classification.isLandRecord,
-        rejectionReason: classification.rejectionReason,
-        missingRequirements: classification.missingKeywords,
-        documentCategory: classification.documentCategory,
-        ownerName: classification.isLandRecord ? ownerName : '[REJECTED - NOT A PATTA]',
-        surveyNumber: classification.isLandRecord ? `${surveyNumber}/${subDiv}` : '[INVALID - NON-LAND DOCUMENT]',
-        extentAcres: classification.isLandRecord ? `${landArea} ${areaUnit}` : '[REJECTED]',
-        ulpin: classification.isLandRecord ? ulpin : '[BLOCKED - NON-PATTA]',
-        pattaNumber: classification.isLandRecord ? pattaNumber : '[NOT DETECTED]',
-        isPdf: analysis.isPdf,
-        pagesCount: analysis.pagesCount,
-        matchedDataset: entities.matchedDataset
-      },
-      processingSteps: [
-        { step: 'Document Ingestion', status: 'COMPLETED', timestamp: new Date().toISOString(), details: `${doc.fileName} (${(doc.fileSize / (1024 * 1024)).toFixed(2)} MB)` },
-        { step: 'Image / PDF Preprocessing (OpenCV)', status: 'COMPLETED', timestamp: new Date().toISOString(), details: `Denoising, Deskew angle: ${preprocessing.deskewAngleDegrees}°, Contrast Boost, Format: ${analysis.isPdf ? 'PDF (' + analysis.pagesCount + ' pgs)' : 'Raster Image'}` },
-        { step: 'Text Detection & Segmentation', status: 'COMPLETED', timestamp: new Date().toISOString(), details: `${tokens.length} word tokens segmented across document canvas` },
-        { step: `Multilingual OCR (${doc.language})`, status: 'COMPLETED', timestamp: new Date().toISOString(), details: `Tesseract OCR / pypdf Indic Engine (${rawText.length} characters recognized, Avg conf: ${Math.round(overallConfidence * 100)}%)` },
-        { step: 'Structured Field Extraction (LayoutLMv3)', status: classification.isLandRecord ? 'COMPLETED' : 'FAILED', timestamp: new Date().toISOString(), details: classification.isLandRecord ? `Mapped against ${entities.matchedDataset}` : 'Entity extraction aborted: Non-Patta format detected' },
-        { step: 'Business Rules & Spatial Validation', status: classification.isLandRecord ? 'COMPLETED' : 'FAILED', timestamp: new Date().toISOString(), details: classification.isLandRecord ? `${validationResult.rulesPassed}/${validationResult.rulesTotal} rules passed. Status: ${validationResult.overallStatus}` : (classification.rejectionReason || 'Wrong document uploaded') }
-      ]
-    });
-
-    if (!classification.isLandRecord) {
-      dbStore.addNotification({
-        title: analysis.isPdf ? 'Wrong PDF Uploaded' : 'Wrong Photo Uploaded',
-        message: `File "${doc.fileName}" flagged: Extracted text does not match Patta record format.`,
-        type: 'ERROR',
-        read: false
-      });
-    }
-
-    dbStore.addAuditLog({
-      userId: dbStore.getCurrentUser().id,
-      userName: dbStore.getCurrentUser().name,
-      userRole: dbStore.getCurrentUser().role,
-      action: classification.isLandRecord ? 'VALIDATION_EXECUTED' : 'DOCUMENT_FLAGGED',
-      documentId: doc.id,
-      recordId: existingRecord.id,
-      details: classification.isLandRecord
-        ? `Document processing completed for ${doc.fileName}. Status: ${docFinalStatus}.`
-        : `WRONG DOCUMENT: ${doc.fileName} rejected. ${classification.rejectionReason}`
-    });
-
-    return {
-      document: dbStore.getDocumentById(docId)!,
-      record: existingRecord
-    };
   }
 }

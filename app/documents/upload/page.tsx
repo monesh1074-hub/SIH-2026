@@ -126,22 +126,23 @@ export default function DocumentUploadPage() {
           fileUrl: previewUrl,
           previewUrl: previewUrl,
           mimeType: isPdf ? 'application/pdf' : 'image/jpeg',
-          fileSize: fileSizeText
+          fileSize: fileSizeText,
+          autoProcess: autoProcess
         })
       });
 
       const data = await res.json();
       if (data.success) {
         const docId = data.data.id;
-        if (autoProcess) {
-          // Trigger automated OCR and entity extraction immediately
+        // Fallback: If not already processed in-flight by server
+        if (autoProcess && !data.processed) {
           try {
             await fetch(`/api/documents/${docId}/process`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' }
             });
           } catch (procErr) {
-            console.warn('Auto-processing error, proceeding to detail view:', procErr);
+            console.warn('Fallback auto-processing error:', procErr);
           }
         }
         router.push(`/documents/${docId}`);

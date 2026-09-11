@@ -319,8 +319,71 @@ class StoreManager {
     return null;
   }
 
+  constructor() {
+    this.loadFromDisk();
+  }
+
+  private getDiskCachePath(): string {
+    try {
+      const os = require('os');
+      const path = require('path');
+      return path.join(os.tmpdir(), 'sih_db_store.json');
+    } catch {
+      return '';
+    }
+  }
+
+  private loadFromDisk(): void {
+    try {
+      const fs = require('fs');
+      const cachePath = this.getDiskCachePath();
+      if (cachePath && fs.existsSync(cachePath)) {
+        const raw = fs.readFileSync(cachePath, 'utf-8');
+        const data = JSON.parse(raw);
+        if (Array.isArray(data.documents) && data.documents.length > 0) {
+          const existingIds = new Set(this.documents.map(d => d.id));
+          for (const doc of data.documents) {
+            if (!existingIds.has(doc.id)) {
+              this.documents.unshift(doc);
+            }
+          }
+        }
+        if (Array.isArray(data.landRecords) && data.landRecords.length > 0) {
+          const existingRecIds = new Set(this.landRecords.map(r => r.id));
+          for (const rec of data.landRecords) {
+            if (!existingRecIds.has(rec.id)) {
+              this.landRecords.unshift(rec);
+            }
+          }
+        }
+      }
+    } catch {
+      // Safe fallback
+    }
+  }
+
+  private saveToDisk(): void {
+    try {
+      const fs = require('fs');
+      const cachePath = this.getDiskCachePath();
+      if (cachePath) {
+        fs.writeFileSync(
+          cachePath,
+          JSON.stringify({
+            documents: this.documents,
+            landRecords: this.landRecords
+          }),
+          'utf-8'
+        );
+      }
+    } catch {
+      // Safe fallback
+    }
+  }
+
   // Documents with Geographical Access Scoping
   getDocuments(forUser?: User): DocumentRecord[] {
+    this.loadFromDisk();
     const user = forUser || this.currentUser;
     let docs = [...this.documents];
     if (user && user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
@@ -335,11 +398,17 @@ class StoreManager {
   }
 
   getDocumentById(id: string): DocumentRecord | undefined {
-    return this.documents.find(d => d.id === id);
+    let found = this.documents.find(d => d.id === id);
+    if (!found) {
+      this.loadFromDisk();
+      found = this.documents.find(d => d.id === id);
+    }
+    return found;
   }
 
   addDocument(doc: DocumentRecord): DocumentRecord {
     this.documents.unshift(doc);
+    this.saveToDisk();
     this.addAuditLog({
       userId: this.currentUser.id,
       userName: this.currentUser.name,
@@ -364,6 +433,7 @@ class StoreManager {
     const idx = this.documents.findIndex(d => d.id === id);
     if (idx !== -1) {
       this.documents[idx] = { ...this.documents[idx], ...updates };
+      this.saveToDisk();
       return this.documents[idx];
     }
     return undefined;
@@ -371,6 +441,7 @@ class StoreManager {
 
   // Land Records with Geographical Access Scoping
   getLandRecords(forUser?: User): LandRecord[] {
+    this.loadFromDisk();
     const user = forUser || this.currentUser;
     let recs = [...this.landRecords];
     if (user && user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
@@ -385,15 +456,26 @@ class StoreManager {
   }
 
   getLandRecordById(id: string): LandRecord | undefined {
-    return this.landRecords.find(r => r.id === id);
+    let found = this.landRecords.find(r => r.id === id);
+    if (!found) {
+      this.loadFromDisk();
+      found = this.landRecords.find(r => r.id === id);
+    }
+    return found;
   }
 
   getLandRecordByDocumentId(docId: string): LandRecord | undefined {
-    return this.landRecords.find(r => r.documentId === docId);
+    let found = this.landRecords.find(r => r.documentId === docId);
+    if (!found) {
+      this.loadFromDisk();
+      found = this.landRecords.find(r => r.documentId === docId);
+    }
+    return found;
   }
 
   addLandRecord(record: LandRecord): LandRecord {
     this.landRecords.unshift(record);
+    this.saveToDisk();
     return record;
   }
 
@@ -405,6 +487,7 @@ class StoreManager {
         ...updates,
         lastModified: new Date().toISOString()
       };
+      this.saveToDisk();
       return this.landRecords[idx];
     }
     return undefined;

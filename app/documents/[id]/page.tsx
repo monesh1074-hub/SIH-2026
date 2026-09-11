@@ -46,6 +46,17 @@ export default function DocumentDetailPage() {
   async function fetchDocument() {
     try {
       setLoading(true);
+      // Try direct ID endpoint first
+      const directRes = await fetch(`/api/documents/${id}`);
+      if (directRes.ok) {
+        const directData = await directRes.json();
+        if (directData.success && directData.data?.document) {
+          setDocument(directData.data.document);
+          return;
+        }
+      }
+
+      // Fallback to all documents list
       const res = await fetch('/api/documents');
       const data = await res.json();
       if (data.success) {
@@ -63,18 +74,28 @@ export default function DocumentDetailPage() {
     if (!document) return;
     setProcessing(true);
     try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 12000);
+
       const res = await fetch(`/api/documents/${document.id}/process`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal
       });
+      clearTimeout(timer);
+
       const data = await res.json();
       if (data.success) {
-        fetchDocument();
+        if (data.data?.document) {
+          setDocument(data.data.document);
+        } else {
+          fetchDocument();
+        }
       } else {
         alert(data.message || 'Processing failed');
       }
     } catch (err: any) {
-      alert(err.message || 'Error running pipeline');
+      alert(err.name === 'AbortError' ? 'Processing timed out. Please try again.' : err.message || 'Error running pipeline');
     } finally {
       setProcessing(false);
     }
