@@ -103,8 +103,10 @@ export type DocumentType =
   | 'Chitta'
   | 'Adangal'
   | 'Sale deed'
+  | 'Sale Deed'
   | 'Mutation record'
   | 'Survey record'
+  | 'Survey Settlement Register'
   | 'Land ownership register'
   | 'Cadastral document'
   | 'Historical register'
@@ -148,6 +150,7 @@ export interface DocumentRecord {
   confidence?: number;
   recordId?: string;
   previewUrl?: string;
+  rawText?: string;
   tokens?: RecognizedToken[];
   extractedData?: {
     ownerName?: string;
@@ -169,7 +172,7 @@ export interface RecognizedToken {
   word: string;
   text?: string;
   transliteration?: string;
-  characters: RecognizedCharacter[];
+  characters?: RecognizedCharacter[];
   confidence: number;
   bbox: [number, number, number, number]; // [x%, y%, w%, h%] relative percentages
   matchedDataset: string;

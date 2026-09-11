@@ -373,26 +373,28 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                   </div>
 
                   {/* Character Glyphs */}
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
-                      Segmented Character Glyphs:
-                    </span>
-                    <div className="flex flex-wrap gap-1">
-                      {currentToken.characters.map((ch, i) => (
-                        <div
-                          key={i}
-                          className={`px-1.5 py-0.5 rounded border text-center font-mono ${
-                            ch.confidence >= 0.90
-                              ? 'bg-white border-emerald-300 text-slate-900'
-                              : 'bg-amber-50 border-amber-300 text-amber-900'
-                          }`}
-                        >
-                          <span className="text-xs font-bold block">{ch.char}</span>
-                          <span className="text-[8px] text-slate-400 block">{Math.round(ch.confidence * 100)}%</span>
-                        </div>
-                      ))}
+                  {currentToken.characters && currentToken.characters.length > 0 && (
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">
+                        Segmented Character Glyphs:
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {currentToken.characters.map((ch, i) => (
+                          <div
+                            key={i}
+                            className={`px-1.5 py-0.5 rounded border text-center font-mono ${
+                              ch.confidence >= 0.90
+                                ? 'bg-white border-emerald-300 text-slate-900'
+                                : 'bg-amber-50 border-amber-300 text-amber-900'
+                            }`}
+                          >
+                            <span className="text-xs font-bold block">{ch.char}</span>
+                            <span className="text-[8px] text-slate-400 block">{Math.round(ch.confidence * 100)}%</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               );
             })()}

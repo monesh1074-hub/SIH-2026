@@ -447,6 +447,22 @@ export class DocumentProcessingService {
       const ulpin = entities.ulpin;
 
       // Step 4: Construct or update LandRecord from real extracted data
+      const resolvedVillage = entities.village || doc.village;
+      const resolvedTaluk = entities.taluk || doc.taluk;
+      const resolvedDistrict = entities.district || doc.district;
+      const resolvedState = entities.state || doc.state;
+
+      // Synchronize document jurisdiction with optical extraction
+      doc.village = resolvedVillage;
+      doc.taluk = resolvedTaluk;
+      doc.district = resolvedDistrict;
+      doc.state = resolvedState;
+      if (entities.matchedDataset) {
+        if (entities.matchedDataset.includes('Hindi')) doc.language = 'Hindi';
+        else if (entities.matchedDataset.includes('Tamil')) doc.language = 'Tamil';
+        else if (entities.matchedDataset.includes('bengali') || entities.matchedDataset.includes('Bengali')) doc.language = 'Bengali';
+      }
+
       let existingRecord = dbStore.getLandRecordByDocumentId(docId);
 
       if (!existingRecord) {
@@ -487,19 +503,19 @@ export class DocumentProcessingService {
             confidence: overallConfidence
           },
           village: {
-            value: doc.village,
+            value: resolvedVillage,
             confidence: 0.98
           },
           taluk: {
-            value: doc.taluk,
+            value: resolvedTaluk,
             confidence: 0.97
           },
           district: {
-            value: doc.district,
+            value: resolvedDistrict,
             confidence: 0.99
           },
           state: {
-            value: doc.state,
+            value: resolvedState,
             confidence: 0.99
           },
           landArea: {
@@ -552,7 +568,12 @@ export class DocumentProcessingService {
           recordId: existingRecord.id,
           ocrConfidence: existingRecord.overallConfidence,
           tokens: tokens,
-          previewUrl: doc.previewUrl || doc.filePath
+          previewUrl: doc.previewUrl || doc.filePath,
+          village: resolvedVillage,
+          taluk: resolvedTaluk,
+          district: resolvedDistrict,
+          state: resolvedState,
+          language: doc.language
         });
       } else {
         existingRecord.ownerName = { value: ownerName, confidence: overallConfidence, originalValue: ownerName };
@@ -562,11 +583,22 @@ export class DocumentProcessingService {
         existingRecord.pattaNumber = { value: pattaNumber, confidence: overallConfidence };
         existingRecord.landArea = { value: landArea, confidence: overallConfidence, originalValue: landArea };
         existingRecord.areaUnit = { value: areaUnit, confidence: 0.98 };
+        existingRecord.village = { value: resolvedVillage, confidence: 0.98 };
+        existingRecord.taluk = { value: resolvedTaluk, confidence: 0.97 };
+        existingRecord.district = { value: resolvedDistrict, confidence: 0.99 };
+        existingRecord.state = { value: resolvedState, confidence: 0.99 };
         existingRecord.currentOwner = { value: ownerName, confidence: overallConfidence };
         existingRecord.overallConfidence = overallConfidence;
         existingRecord.tokens = tokens;
         existingRecord.previewUrl = doc.previewUrl || doc.filePath;
         existingRecord.ulpin = ulpin;
+        dbStore.updateDocument(docId, {
+          village: resolvedVillage,
+          taluk: resolvedTaluk,
+          district: resolvedDistrict,
+          state: resolvedState,
+          language: doc.language
+        });
       }
 
       // Step 5: Run Validation Engine

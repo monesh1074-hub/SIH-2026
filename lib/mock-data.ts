@@ -5,6 +5,8 @@ export const MASTER_STATES = [
   'Karnataka',
   'Maharashtra',
   'Uttar Pradesh',
+  'Uttarakhand',
+  'West Bengal',
   'Rajasthan',
   'Gujarat'
 ];
@@ -368,6 +370,12 @@ export const MASTER_LOCATIONS: Record<string, { districts: Record<string, { talu
           'Madurai South': ['Tiruparankundram', 'Avaniyapuram', 'Thirunagar']
         }
       },
+      'Chennai': {
+        taluks: {
+          'Egmore': ['Triplicane', 'Nungambakkam', 'Royapettah', 'Egmore North'],
+          'Mylapore': ['Mylapore Rural', 'Mandaveli', 'Alwarpet']
+        }
+      },
       'Thanjavur': {
         taluks: {
           'Kumbakonam': ['Dharasuram', 'Papanasam', 'Swamimalai', 'Thirunageswaram'],
@@ -420,6 +428,42 @@ export const MASTER_LOCATIONS: Record<string, { districts: Record<string, { talu
         taluks: {
           'Sadar': ['Darshannagar', 'Bhadarsa', 'Masodha', 'Bikapur'],
           'Rudauli': ['Roshanganj', 'Mawai', 'Bhelsar']
+        }
+      }
+    }
+  },
+  'Uttarakhand': {
+    districts: {
+      'Haridwar': {
+        taluks: {
+          'Roorkee': ['Aurangabad', 'Shivdaspur', 'Teeliwala', 'Civil Lines', 'Sadar'],
+          'Haridwar': ['Kankhal', 'Jwalapur', 'Bahadrabad', 'Mayapur']
+        }
+      },
+      'Dehradun': {
+        taluks: {
+          'Rishikesh': ['Doiwala', 'Rishikesh Rural'],
+          'Dehradun': ['Vasant Vihar', 'Rajpur']
+        }
+      }
+    }
+  },
+  'West Bengal': {
+    districts: {
+      'Burdwan': {
+        taluks: {
+          'Asansol': ['Jamuria', 'Raniganj', 'Barabani', 'Kalyanpur'],
+          'Burdwan Sadar': ['Galsi', 'Bhatar', 'Memari']
+        }
+      }
+    }
+  },
+  'Rajasthan': {
+    districts: {
+      'Jaipur': {
+        taluks: {
+          'Sadar': ['Mohalla Biraman', 'Amer', 'Sanganer'],
+          'Chaksu': ['Kotkhawda', 'Shivdaspura']
         }
       }
     }

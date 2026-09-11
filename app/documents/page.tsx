@@ -624,26 +624,28 @@ export default function DocumentsPage() {
                         </div>
 
                         {/* Letter-by-Letter Character Chips */}
-                        <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1.5">
-                            Individual Character Glyphs ({activeToken.characters.length} characters):
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {activeToken.characters.map((ch, idx) => (
-                              <div
-                                key={idx}
-                                className={`px-2 py-1 rounded border text-center font-mono ${
-                                  ch.confidence >= 0.90
-                                    ? 'bg-white border-emerald-300 text-slate-900'
-                                    : 'bg-amber-50 border-amber-300 text-amber-900'
-                                }`}
-                              >
-                                <span className="text-sm font-bold block">{ch.char}</span>
-                                <span className="text-[9px] text-slate-400 block">{Math.round(ch.confidence * 100)}%</span>
-                              </div>
-                            ))}
+                        {activeToken.characters && activeToken.characters.length > 0 && (
+                          <div>
+                            <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1.5">
+                              Individual Character Glyphs ({activeToken.characters.length} characters):
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {activeToken.characters.map((ch, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`px-2 py-1 rounded border text-center font-mono ${
+                                    ch.confidence >= 0.90
+                                      ? 'bg-white border-emerald-300 text-slate-900'
+                                      : 'bg-amber-50 border-amber-300 text-amber-900'
+                                  }`}
+                                >
+                                  <span className="text-sm font-bold block">{ch.char}</span>
+                                  <span className="text-[9px] text-slate-400 block">{Math.round(ch.confidence * 100)}%</span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     ) : (
                       <div className="p-4 bg-slate-50 border border-slate-200 rounded text-center text-xs text-slate-500">
