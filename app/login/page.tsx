@@ -98,8 +98,8 @@ export default function LoginPage() {
         <div className="h-1.5 bg-gradient-to-r from-orange-500 via-white to-emerald-600"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-tr from-amber-700 via-orange-600 to-emerald-700 flex items-center justify-center text-white shadow-sm flex-shrink-0">
-              <Landmark className="w-6 h-6" />
+            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-500 shadow-md flex-shrink-0 bg-slate-950 flex items-center justify-center ring-2 ring-amber-500/20">
+              <img src="/logo.png" alt="ILRDVS Emblem" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">

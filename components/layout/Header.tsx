@@ -46,13 +46,18 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onToggleSidebar}
             type="button"
-            className="lg:hidden p-2 -ml-1 mr-2 text-slate-600 hover:text-slate-900 rounded-md hover:bg-slate-100 transition flex-shrink-0"
+            className="lg:hidden p-2 -ml-1 mr-1.5 text-slate-600 hover:text-slate-900 rounded-md hover:bg-slate-100 transition flex-shrink-0"
             title="Open Menu"
             aria-label="Toggle navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
+
+        {/* Mobile Brand Emblem */}
+        <div className="lg:hidden w-8 h-8 rounded-full overflow-hidden border border-amber-400/80 shadow-2xs mr-2 flex-shrink-0 bg-slate-950">
+          <img src="/logo.png" alt="ILRDVS" className="w-full h-full object-cover" />
+        </div>
 
         <div className="min-w-0">
           <h1 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-tight flex items-center gap-1.5 sm:gap-2 truncate">

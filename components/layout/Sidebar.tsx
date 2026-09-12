@@ -85,13 +85,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-b border-slate-800 bg-slate-950/70 relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-amber-600 via-orange-500 to-emerald-600 flex items-center justify-center text-white shadow-sm flex-shrink-0">
-                <Landmark className="w-5 h-5" />
+              <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-md flex-shrink-0 bg-slate-950 flex items-center justify-center ring-2 ring-amber-500/30">
+                <img
+                  src="/logo.png"
+                  alt="ILRDVS National Emblem"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
-                <div className="text-xs font-bold text-amber-400 tracking-wider uppercase font-mono">DoLR • Govt of India</div>
-                <div className="text-sm font-semibold text-white leading-tight">ILRDVS Portal</div>
-                <div className="text-[10px] text-slate-400">SIH 2026 • PS ID: 26018</div>
+                <div className="text-[11px] font-bold text-amber-400 tracking-wider uppercase font-mono leading-tight">DoLR • Govt of India</div>
+                <div className="text-sm font-bold text-white tracking-tight">ILRDVS Portal</div>
+                <div className="text-[10px] text-slate-400 font-mono">SIH 2026 • PS 26018</div>
               </div>
             </div>
 
