@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbStore } from '@/lib/store';
+import { cookies } from 'next/headers';
+import { hasPermission } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -19,6 +21,17 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('sih_user_id')?.value;
+    const currentUser = userId ? dbStore.getUserById(userId) : dbStore.getCurrentUser();
+
+    if (!currentUser || !hasPermission(currentUser, 'ROLE_CREATE')) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: ROLE_CREATE privilege required.' },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
 
     if (!body.name) {
@@ -45,6 +58,17 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('sih_user_id')?.value;
+    const currentUser = userId ? dbStore.getUserById(userId) : dbStore.getCurrentUser();
+
+    if (!currentUser || !hasPermission(currentUser, 'ROLE_EDIT')) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: ROLE_EDIT privilege required.' },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const { id, ...updates } = body;
 
@@ -78,6 +102,17 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('sih_user_id')?.value;
+    const currentUser = userId ? dbStore.getUserById(userId) : dbStore.getCurrentUser();
+
+    if (!currentUser || !hasPermission(currentUser, 'ROLE_DELETE')) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: ROLE_DELETE privilege required.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

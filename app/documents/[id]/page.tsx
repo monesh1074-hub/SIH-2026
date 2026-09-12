@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import {
   FileText,
   ArrowLeft,
@@ -103,33 +102,25 @@ export default function DocumentDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-slate-50">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Header title="Document Details" />
-          <div className="p-8 text-center text-xs text-slate-400">Loading document details...</div>
-        </div>
-      </div>
+      <AppLayout title="Document Details" requiredPermission="DOCUMENT_VIEW">
+        <div className="p-8 text-center text-xs text-slate-400">Loading document details...</div>
+      </AppLayout>
     );
   }
 
   if (!document) {
     return (
-      <div className="flex min-h-screen bg-slate-50">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Header title="Document Not Found" />
-          <div className="p-8 text-center space-y-3">
-            <p className="text-sm text-slate-600">The requested document could not be found.</p>
-            <Link
-              href="/documents"
-              className="inline-block px-4 py-2 bg-indigo-600 text-white rounded text-xs font-semibold"
-            >
-              Return to Documents
-            </Link>
-          </div>
+      <AppLayout title="Document Not Found" requiredPermission="DOCUMENT_VIEW">
+        <div className="p-8 text-center space-y-3">
+          <p className="text-sm text-slate-600">The requested document could not be found.</p>
+          <Link
+            href="/documents"
+            className="inline-block px-4 py-2 bg-indigo-600 text-white rounded text-xs font-semibold"
+          >
+            Return to Documents
+          </Link>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
@@ -137,15 +128,12 @@ export default function DocumentDetailPage() {
   const isWrongDocument = document.status === 'FLAGGED' || document.extractedData?.isWrongDocument || document.extractedData?.isLandRecord === false;
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title={`Document: ${document.fileName}`}
-          subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
-        />
-
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+    <AppLayout
+      title={`Document: ${document.fileName}`}
+      subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
+      requiredPermission="DOCUMENT_VIEW"
+    >
+      <div className="max-w-7xl mx-auto space-y-6">
           {/* Top Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
@@ -483,8 +471,7 @@ export default function DocumentDetailPage() {
               )}
             </div>
           </div>
-        </main>
       </div>
-    </div>
+    </AppLayout>
   );
 }

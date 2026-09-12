@@ -43,6 +43,7 @@ export default function AuditTrailPage() {
     <AppLayout
       title="Administrative Audit Trail & Security Ledger"
       subtitle="Statutory compliance log tracking document uploads, OCR extractions, human field corrections, and revenue sign-offs"
+      requiredPermission="AUDIT_VIEW"
     >
       <div className="bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
         {/* Header & Filter */}
@@ -74,7 +75,7 @@ export default function AuditTrailPage() {
 
         {/* Logs Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[700px]">
             <thead className="bg-slate-50/80 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               <tr>
                 <th className="py-3 px-4">Timestamp (IST)</th>

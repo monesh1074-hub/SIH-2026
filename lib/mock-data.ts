@@ -171,6 +171,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98401 23456',
     status: 'ACTIVE',
     passwordHash: 'SuperAdmin@123',
+    permissions: ALL_PERMISSIONS.map(p => p.key),
     lastLogin: '2026-09-07T09:00:00Z'
   },
   {
@@ -187,6 +188,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98402 34567',
     status: 'ACTIVE',
     passwordHash: 'Admin@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'ADMIN')?.permissions || [],
     lastLogin: '2026-09-07T08:30:00Z'
   },
   {
@@ -204,6 +206,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98403 45678',
     status: 'ACTIVE',
     passwordHash: 'Officer@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'REVENUE_OFFICER')?.permissions || [],
     lastLogin: '2026-09-07T09:30:00Z'
   },
   {
@@ -221,6 +224,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98404 56789',
     status: 'ACTIVE',
     passwordHash: 'Verifier@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'VERIFICATION_OFFICER')?.permissions || [],
     lastLogin: '2026-09-07T07:45:00Z'
   },
   {
@@ -238,6 +242,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98405 67890',
     status: 'ACTIVE',
     passwordHash: 'Operator@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'DATA_ENTRY_OPERATOR')?.permissions || [],
     lastLogin: '2026-09-07T09:15:00Z'
   },
   {
@@ -255,6 +260,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98406 78901',
     status: 'ACTIVE',
     passwordHash: 'Gis@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'GIS_OFFICER')?.permissions || [],
     lastLogin: '2026-09-07T08:10:00Z'
   },
   {
@@ -271,6 +277,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98407 89012',
     status: 'ACTIVE',
     passwordHash: 'Auditor@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'AUDITOR')?.permissions || [],
     lastLogin: '2026-09-06T17:20:00Z'
   },
   {
@@ -288,6 +295,7 @@ export const DEMO_USERS: User[] = [
     phone: '+91 98408 90123',
     status: 'ACTIVE',
     passwordHash: 'Viewer@123',
+    permissions: INITIAL_ROLES.find(r => r.code === 'VIEWER')?.permissions || [],
     lastLogin: '2026-09-07T09:00:00Z'
   }
 ];

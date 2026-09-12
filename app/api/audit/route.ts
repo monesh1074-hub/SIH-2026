@@ -1,12 +1,26 @@
 import { NextResponse } from 'next/server';
 import { dbStore } from '@/lib/store';
 import { supabase, persistAuditLogToSupabase } from '@/lib/supabase';
+import { cookies } from 'next/headers';
+import { hasPermission } from '@/lib/auth';
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const recordId = searchParams.get('recordId');
-  const action = searchParams.get('action');
-  const limit = parseInt(searchParams.get('limit') || '50', 10);
+  try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('sih_user_id')?.value;
+    const currentUser = userId ? dbStore.getUserById(userId) : dbStore.getCurrentUser();
+
+    if (!currentUser || !hasPermission(currentUser, 'AUDIT_VIEW')) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: AUDIT_VIEW privilege required to view security audit ledger.' },
+        { status: 403 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const recordId = searchParams.get('recordId');
+    const action = searchParams.get('action');
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
 
   // Attempt reading from real Supabase table first
   try {
@@ -50,6 +64,9 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({ success: true, count: logs.length, source: 'store', data: logs });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

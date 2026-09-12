@@ -3,6 +3,7 @@ import { dbStore } from '@/lib/store';
 import { DocumentRecord } from '@/types';
 import { cookies } from 'next/headers';
 import { DocumentProcessingService } from '@/services/document-processing';
+import { hasPermission } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -27,12 +28,26 @@ export async function POST(request: Request) {
 
     // Check if this is a process trigger alias
     if (body.action === 'process' && body.documentId) {
+      if (!currentUser || !hasPermission(currentUser, 'DOCUMENT_PROCESS')) {
+        return NextResponse.json(
+          { success: false, message: 'Forbidden: DOCUMENT_PROCESS privilege required to trigger AI pipelines.' },
+          { status: 403 }
+        );
+      }
+
       const result = await DocumentProcessingService.processDocument(body.documentId);
       return NextResponse.json({
         success: true,
         message: 'Document processed successfully through OpenCV, OCR, and Validation Engine',
         data: result
       });
+    }
+
+    if (!currentUser || !hasPermission(currentUser, 'DOCUMENT_UPLOAD')) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: DOCUMENT_UPLOAD privilege required to ingest land documents.' },
+        { status: 403 }
+      );
     }
 
     const {

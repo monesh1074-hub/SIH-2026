@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import {
   Bell,
   CheckCircle2,
@@ -93,15 +92,11 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title="Administrative Alert Dispatch"
-          subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
-        />
-
-        <main className="flex-1 p-6 max-w-5xl w-full mx-auto space-y-6">
+    <AppLayout
+      title="Administrative Alert Dispatch"
+      subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
+    >
+      <div className="max-w-5xl w-full mx-auto space-y-6">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
@@ -229,8 +224,7 @@ export default function NotificationsPage() {
               ))
             )}
           </div>
-        </main>
       </div>
-    </div>
+    </AppLayout>
   );
 }

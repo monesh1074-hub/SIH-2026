@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import {
   Layers,
   ArrowLeft,
@@ -55,15 +54,12 @@ export default function PermissionsPage() {
   });
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title="RBAC Capability & Permission Matrix"
-          subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
-        />
-
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+    <AppLayout
+      title="RBAC Capability & Permission Matrix"
+      subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
+      requiredPermission="ROLE_VIEW"
+    >
+      <div className="space-y-6">
           {/* Navigation and Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
@@ -126,7 +122,7 @@ export default function PermissionsPage() {
           {/* Full Grid Matrix */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[850px]">
                 <thead className="bg-slate-900 text-white font-mono text-[11px] uppercase tracking-wider">
                   <tr>
                     <th className="px-4 py-3 min-w-[240px]">Capability / Permission</th>
@@ -179,8 +175,7 @@ export default function PermissionsPage() {
               </table>
             </div>
           </div>
-        </main>
       </div>
-    </div>
+    </AppLayout>
   );
 }

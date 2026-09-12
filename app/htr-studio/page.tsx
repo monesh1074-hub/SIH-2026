@@ -171,6 +171,7 @@ print("Sample Attributes:", list(sample.keys()))`;
     <AppLayout
       title="National Indic Document AI & Benchmark Suite"
       subtitle="Continuous automated background evaluation across 7 Hugging Face Indic datasets: IIIT-INDIC (Hindi/Tamil), Indic-Mozhi, NayanaDocs-45k WebDataset, NayanaOCR, and Indic-HPLT"
+      requiredPermission="AI_PROCESS"
     >
       {/* 1. REAL-TIME LIVE BACKGROUND BENCHMARK RUNNER */}
       <div className="bg-slate-900 border border-slate-800 rounded-lg p-5 shadow-sm text-slate-100 space-y-4">

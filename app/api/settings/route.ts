@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dbStore } from '@/lib/store';
+import { cookies } from 'next/headers';
+import { hasPermission } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -12,6 +14,17 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const cookieStore = await cookies();
+    const userId = cookieStore.get('sih_user_id')?.value;
+    const user = userId ? dbStore.getUserById(userId) : dbStore.getCurrentUser();
+
+    if (!user || !hasPermission(user, 'SYSTEM_SETTINGS')) {
+      return NextResponse.json(
+        { success: false, message: 'Forbidden: Modifying system settings requires SUPER_ADMIN or SYSTEM_SETTINGS privilege.' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const updatedSettings = dbStore.updateSystemSettings(body);
     return NextResponse.json({

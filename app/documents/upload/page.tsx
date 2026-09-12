@@ -3,8 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AppLayout } from '@/components/layout/AppLayout';
 import {
   UploadCloud,
   FileText,
@@ -467,15 +466,12 @@ export default function DocumentUploadPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title="Document Intake &amp; Ingestion Terminal"
-          subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
-        />
-
-        <main className="flex-1 p-6 max-w-5xl w-full mx-auto space-y-6">
+    <AppLayout
+      title="Document Intake & Ingestion Terminal"
+      subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
+      requiredPermission="DOCUMENT_UPLOAD"
+    >
+      <div className="max-w-5xl w-full mx-auto space-y-6">
           <div className="flex items-center justify-between border-b border-slate-200 pb-4">
             <div>
               <Link
@@ -590,7 +586,7 @@ export default function DocumentUploadPage() {
             <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
               {/* Sovereign DILRMP Indic HTR & Revenue OCR Model Banner */}
               <div className="p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-xl shadow-md border border-indigo-500/40 relative overflow-hidden">
-                <div className="flex items-start justify-between gap-3 relative z-10">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3 relative z-10">
                   <div className="flex items-start gap-3">
                     <div className="p-2.5 bg-indigo-900/60 rounded-lg border border-indigo-400/30 text-amber-300 flex-shrink-0">
                       <Cpu className="w-5 h-5 animate-pulse" />
@@ -905,8 +901,7 @@ export default function DocumentUploadPage() {
                 ))}
             </div>
           </div>
-        </main>
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -21,6 +21,7 @@ export async function POST() {
     }
 
     cookieStore.delete('sih_user_id');
+    cookieStore.delete('sih_user_role');
 
     return NextResponse.json({
       success: true,

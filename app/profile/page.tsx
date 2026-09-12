@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useAuth } from '@/components/auth/AuthContext';
 import {
   User as UserIcon,
   Shield,
@@ -20,32 +20,12 @@ import {
 import { User } from '@/types';
 
 export default function ProfilePage() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
   const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [savingPass, setSavingPass] = useState(false);
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  async function fetchProfile() {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/auth/me');
-      const data = await res.json();
-      if (data.success) {
-        setCurrentUser(data.data);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,28 +70,12 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen bg-slate-50">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Header title="User Profile" />
-          <div className="p-8 text-center text-xs text-slate-400">Loading user profile...</div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title="Official Personnel Profile &amp; Jurisdiction"
-          subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
-        />
-
-        <main className="flex-1 p-6 max-w-5xl w-full mx-auto space-y-6">
+    <AppLayout
+      title="Official Personnel Profile & Jurisdiction"
+      subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
+    >
+      <div className="max-w-5xl w-full mx-auto space-y-6">
           {/* Official ID Header Card */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="h-3 bg-gradient-to-r from-amber-600 via-indigo-600 to-emerald-600"></div>
@@ -267,8 +231,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
+    </AppLayout>
   );
 }

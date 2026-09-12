@@ -84,7 +84,7 @@ function RecordsContent() {
       {/* Land Records Table */}
       <div className="bg-white border border-slate-200 rounded-lg shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[720px]">
             <thead className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               <tr>
                 <th className="py-3 px-4">Survey / Khasra No</th>
@@ -154,6 +154,7 @@ export default function RecordsListPage() {
     <AppLayout
       title="Master Land Records Registry"
       subtitle="Comprehensive digital repository of RoR (Record of Rights), Khasra, Patta, and Cadastral attributes"
+      requiredPermission="RECORD_VIEW"
     >
       <Suspense fallback={<div className="p-6 text-xs text-slate-500">Loading master records...</div>}>
         <RecordsContent />

@@ -35,9 +35,10 @@ export default function AnalyticsPage() {
     <AppLayout
       title="Digitization Analytics & AI Performance Telemetry"
       subtitle="Comprehensive metrics tracking OCR confidence, human verification throughput, and model feedback"
+      requiredPermission="ANALYTICS_VIEW"
     >
       {/* Metrics Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-2xs">
           <div className="text-slate-500 text-xs font-medium">Verified Records</div>
           <div className="text-2xl font-bold text-emerald-700 font-mono mt-1">{stats?.successfullyDigitized ?? 2}</div>

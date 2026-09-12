@@ -160,7 +160,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Metric Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Total Documents</span>
@@ -373,7 +373,7 @@ export default function DashboardPage() {
             <BrainCircuit className="w-4 h-4 text-indigo-600" />
             Language Distribution & OCR Engine Telemetry
           </h3>
-          <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-md">
               <div className="text-slate-500 font-medium">Tamil Script (தமிழ்)</div>
               <div className="text-lg font-bold text-slate-900 font-mono mt-1">42.5%</div>

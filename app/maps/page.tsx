@@ -129,6 +129,7 @@ export default function MapsPage() {
     <AppLayout
       title="Cadastral GIS Spatial Map & Bhu-Aadhaar (ULPIN) Layer"
       subtitle="Interactive PostGIS polygon boundaries linked with digitized Survey numbers and Record of Rights"
+      requiredPermission="GIS_VIEW"
     >
       {/* Demonstration Cadastral Banner */}
       <div className="p-3 bg-slate-900 text-white rounded-lg text-xs flex flex-wrap items-center justify-between gap-3">
@@ -147,7 +148,7 @@ export default function MapsPage() {
         
         {/* Left 8 Cols: Map View */}
         <div className="lg:col-span-8 bg-white border border-slate-200 rounded-lg p-3 shadow-2xs flex flex-col">
-          <form onSubmit={handleSearch} className="mb-3 flex items-center gap-2">
+          <form onSubmit={handleSearch} className="mb-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -160,7 +161,7 @@ export default function MapsPage() {
             </div>
             <button
               type="submit"
-              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold shadow-xs transition"
+              className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold shadow-xs transition w-full sm:w-auto"
             >
               Locate Parcel
             </button>
@@ -169,7 +170,7 @@ export default function MapsPage() {
           {/* Leaflet Map DOM Element */}
           <div
             ref={mapRef}
-            className="w-full h-[540px] rounded border border-slate-300 overflow-hidden relative z-10"
+            className="w-full h-[360px] sm:h-[450px] lg:h-[540px] rounded border border-slate-300 overflow-hidden relative z-10"
           >
             {loading && (
               <div className="absolute inset-0 bg-slate-100 flex items-center justify-center text-xs text-slate-500">

@@ -121,6 +121,7 @@ export default function SettingsPage() {
     <AppLayout
       title="System Settings & Administrative Configuration"
       subtitle="Configure Human-in-the-Loop confidence thresholds, GIS spatial tolerance limits, validation rules, and Indic language policies"
+      requiredPermission="SYSTEM_SETTINGS"
     >
       <form onSubmit={handleSaveSettings} className="space-y-6">
 

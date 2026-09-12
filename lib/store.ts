@@ -55,7 +55,12 @@ class StoreManager {
   }
 
   getUserById(id: string): User | undefined {
-    return this.users.find(u => u.id === id);
+    const user = this.users.find(u => u.id === id);
+    if (user && (!user.permissions || user.permissions.length === 0)) {
+      const roleObj = this.roles.find(r => r.code === user.role);
+      user.permissions = roleObj ? [...roleObj.permissions] : [];
+    }
+    return user;
   }
 
   getUserByEmail(email: string): User | undefined {
@@ -300,11 +305,15 @@ class StoreManager {
 
   // Current User Session
   getCurrentUser(): User {
+    if (this.currentUser && (!this.currentUser.permissions || this.currentUser.permissions.length === 0)) {
+      const roleObj = this.roles.find(r => r.code === this.currentUser.role);
+      this.currentUser.permissions = roleObj ? [...roleObj.permissions] : [];
+    }
     return this.currentUser;
   }
 
   setCurrentUser(userId: string): User | null {
-    const user = this.users.find(u => u.id === userId);
+    const user = this.getUserById(userId);
     if (user) {
       this.currentUser = user;
       this.addAuditLog({
@@ -320,6 +329,17 @@ class StoreManager {
   }
 
   constructor() {
+    this.users = this.users.map(u => {
+      if (!u.permissions || u.permissions.length === 0) {
+        const roleObj = this.roles.find(r => r.code === u.role);
+        return {
+          ...u,
+          permissions: roleObj ? [...roleObj.permissions] : []
+        };
+      }
+      return u;
+    });
+    this.currentUser = this.users[0];
     this.loadFromDisk();
   }
 

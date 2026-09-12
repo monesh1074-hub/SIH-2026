@@ -4,6 +4,7 @@ import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { useAuth } from '@/components/auth/AuthContext';
 import {
   FileText,
   CheckCircle2,
@@ -31,6 +32,12 @@ import confetti from 'canvas-confetti';
 export default function RecordDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const { hasPermission, currentUser } = useAuth();
+  const canApprove = hasPermission('RECORD_APPROVE');
+  const canReject = hasPermission('RECORD_REJECT');
+  const canEdit = hasPermission('RECORD_EDIT') || hasPermission('VERIFICATION_EDIT');
+  const canValidate = hasPermission('VALIDATION_RUN');
+  const isReadOnly = currentUser?.role === 'VIEWER' || currentUser?.role === 'AUDITOR';
 
   const [data, setData] = useState<{
     record: LandRecord;
@@ -74,6 +81,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
   }
 
   const handleStartEdit = (fieldName: string, currentVal: any) => {
+    if (!canEdit) return;
     setEditingField(fieldName);
     setFieldValue(String(currentVal));
     setComment('');
@@ -177,6 +185,7 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
     <AppLayout
       title={`Land Record: Survey #${record.surveyNumber.value}/${record.subdivisionNumber.value}`}
       subtitle={`Village: ${record.village.value}, District: ${record.district.value} • ULPIN: ${record.ulpin || 'Pending'}`}
+      requiredPermission="RECORD_VIEW"
     >
       {/* Top Breadcrumb & Actions Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-3 border-b border-slate-200">
@@ -213,14 +222,16 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleRunValidation}
-            className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
-          >
-            <RotateCcw className="w-3.5 h-3.5 text-indigo-600" /> Re-Run Validation
-          </button>
+          {canValidate && (
+            <button
+              onClick={handleRunValidation}
+              className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-indigo-600" /> Re-Run Validation
+            </button>
+          )}
 
-          {record.status !== 'VERIFIED' && (
+          {canApprove && record.status !== 'VERIFIED' && (
             <button
               onClick={handleApproveRecord}
               disabled={verifying || record.status === 'REJECTED'}
@@ -231,8 +242,29 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               {verifying ? 'Signing...' : record.status === 'REJECTED' ? 'Approval Blocked (Non-Patta)' : 'Approve & Issue Bhu-Aadhaar'}
             </button>
           )}
+
+          {isReadOnly && (
+            <span className="text-xs font-mono font-bold px-2.5 py-1.5 bg-slate-100 text-slate-600 rounded border border-slate-200">
+              Read-Only Inspection
+            </span>
+          )}
         </div>
       </div>
+
+      {/* STATUTORY READ-ONLY INSPECTION BANNER */}
+      {isReadOnly && (
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-900 flex items-center justify-between shadow-2xs">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <span>
+              <strong>{currentUser?.role === 'VIEWER' ? 'Citizen Public Inquiry' : 'Statutory Audit Oversight'} (Read-Only)</strong>: Authorized for RoR and cadastral viewing. Record modification and revenue approvals are restricted.
+            </span>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold">
+            NO MUTATION PRIVILEGE
+          </span>
+        </div>
+      )}
 
       {/* NON-PATTA REJECTION BANNER */}
       {record.status === 'REJECTED' && (
@@ -588,9 +620,9 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               <div 
                 onClick={() => highlightTokenByTag('OWNER_NAME')} 
                 title="Click to highlight matching OCR bounding box on document"
-                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+                className="p-3 sm:p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 group"
               >
-                <div className="w-1/3">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
                     Owner Name
                     <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
@@ -606,16 +638,18 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                     <div className="text-[10px] text-slate-500 font-normal mt-0.5">{record.ownerName.explanation}</div>
                   )}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${getConfidenceBadgeClass(record.ownerName.confidence)}`}>
                     {Math.round(record.ownerName.confidence * 100)}%
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleStartEdit('ownerName', record.ownerName.value); }}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-                  >
-                    Edit
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleStartEdit('ownerName', record.ownerName.value); }}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -623,9 +657,9 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               <div 
                 onClick={() => highlightTokenByTag('FATHER_NAME')} 
                 title="Click to highlight matching OCR bounding box on document"
-                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+                className="p-3 sm:p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 group"
               >
-                <div className="w-1/3">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
                     Father / Husband Name
                     <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
@@ -634,16 +668,18 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                 <div className="flex-1 text-slate-900 font-medium">
                   {record.fatherOrHusbandName.value}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${getConfidenceBadgeClass(record.fatherOrHusbandName.confidence)}`}>
                     {Math.round(record.fatherOrHusbandName.confidence * 100)}%
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleStartEdit('fatherOrHusbandName', record.fatherOrHusbandName.value); }}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-                  >
-                    Edit
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleStartEdit('fatherOrHusbandName', record.fatherOrHusbandName.value); }}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -651,9 +687,9 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               <div 
                 onClick={() => highlightTokenByTag('SURVEY_NUMBER')} 
                 title="Click to highlight matching OCR bounding box on document"
-                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+                className="p-3 sm:p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 group"
               >
-                <div className="w-1/3">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
                     Survey Number / Sub-division
                     <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
@@ -662,16 +698,18 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                 <div className="flex-1 font-mono font-bold text-slate-900">
                   {record.surveyNumber.value} / {record.subdivisionNumber.value}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${getConfidenceBadgeClass(record.surveyNumber.confidence)}`}>
                     {Math.round(record.surveyNumber.confidence * 100)}%
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleStartEdit('surveyNumber', record.surveyNumber.value); }}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-                  >
-                    Edit
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleStartEdit('surveyNumber', record.surveyNumber.value); }}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -679,9 +717,9 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
               <div 
                 onClick={() => highlightTokenByTag('LAND_AREA')} 
                 title="Click to highlight matching OCR bounding box on document"
-                className="p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex items-center justify-between gap-4 group"
+                className="p-3 sm:p-3.5 hover:bg-indigo-50/60 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 group"
               >
-                <div className="w-1/3">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800 group-hover:text-indigo-700 flex items-center gap-1.5">
                     Land Area (Extent)
                     <span className="text-[9px] text-indigo-400 opacity-0 group-hover:opacity-100 transition">🔍 View BBox</span>
@@ -693,43 +731,47 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                 <div className="flex-1 font-mono font-bold text-slate-900">
                   {record.landArea.value} {record.areaUnit.value}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${getConfidenceBadgeClass(record.landArea.confidence)}`}>
                     {Math.round(record.landArea.confidence * 100)}%
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleStartEdit('landArea', record.landArea.value); }}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-                  >
-                    Edit
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleStartEdit('landArea', record.landArea.value); }}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Land Classification */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
-                <div className="w-1/3">
+              <div className="p-3 sm:p-3.5 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800">Land Classification</div>
                 </div>
                 <div className="flex-1 text-slate-900">
                   {record.landClassification.value}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${getConfidenceBadgeClass(record.landClassification.confidence)}`}>
                     {Math.round(record.landClassification.confidence * 100)}%
                   </span>
-                  <button
-                    onClick={() => handleStartEdit('landClassification', record.landClassification.value)}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-                  >
-                    Edit
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => handleStartEdit('landClassification', record.landClassification.value)}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Mutation Number */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
-                <div className="w-1/3">
+              <div className="p-3 sm:p-3.5 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800">Mutation Order / Seal</div>
                   {record.mutationNumber.explanation && (
                     <div className="text-[10px] text-amber-700 font-normal">{record.mutationNumber.explanation}</div>
@@ -738,28 +780,30 @@ export default function RecordDetailPage({ params }: { params: Promise<{ id: str
                 <div className="flex-1 font-mono text-slate-900">
                   {record.mutationNumber.value}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className={`text-[10px] px-2 py-0.5 rounded border font-mono font-bold ${getConfidenceBadgeClass(record.mutationNumber.confidence)}`}>
                     {Math.round(record.mutationNumber.confidence * 100)}%
                   </span>
-                  <button
-                    onClick={() => handleStartEdit('mutationNumber', record.mutationNumber.value)}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
-                  >
-                    Edit
-                  </button>
+                  {canEdit && (
+                    <button
+                      onClick={() => handleStartEdit('mutationNumber', record.mutationNumber.value)}
+                      className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline"
+                    >
+                      Edit
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Village, Taluk, District */}
-              <div className="p-3.5 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
-                <div className="w-1/3">
+              <div className="p-3 sm:p-3.5 hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                <div className="w-full sm:w-1/3">
                   <div className="font-bold text-slate-800">Administrative Hierarchy</div>
                 </div>
                 <div className="flex-1 text-slate-800">
                   {record.village.value}, {record.taluk.value}, {record.district.value}, {record.state.value}
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
+                <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0 w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <span className="text-[10px] px-2 py-0.5 rounded border font-mono font-bold bg-emerald-50 text-emerald-800 border-emerald-200">
                     99%
                   </span>

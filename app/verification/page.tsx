@@ -43,6 +43,7 @@ export default function VerificationQueuePage() {
     <AppLayout
       title="Human-in-the-Loop (HITL) Verification Queue"
       subtitle="Administrative triage for records flagged with low optical confidence or business validation rule conflicts"
+      requiredPermission="VERIFICATION_VIEW"
     >
       {/* Informative Guidance Banner */}
       <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 flex items-start gap-3">

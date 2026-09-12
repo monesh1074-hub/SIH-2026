@@ -41,6 +41,12 @@ export async function POST(req: NextRequest) {
       httpOnly: false, // allow client to read for quick state if needed
       sameSite: 'lax'
     });
+    cookieStore.set('sih_user_role', user.role, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+      httpOnly: false,
+      sameSite: 'lax'
+    });
 
     dbStore.addAuditLog({
       userId: user.id,

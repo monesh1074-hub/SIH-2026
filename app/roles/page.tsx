@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Header } from '@/components/layout/Header';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useAuth } from '@/components/auth/AuthContext';
 import {
   Shield,
   KeyRound,
@@ -24,6 +24,11 @@ import { Role, PermissionKey } from '@/types';
 import { ALL_PERMISSIONS } from '@/lib/mock-data';
 
 export default function RolesPage() {
+  const { hasPermission } = useAuth();
+  const canCreateRole = hasPermission('ROLE_CREATE');
+  const canEditRole = hasPermission('ROLE_EDIT');
+  const canDeleteRole = hasPermission('ROLE_DELETE');
+
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
@@ -161,15 +166,12 @@ export default function RolesPage() {
   const categories = Array.from(new Set(ALL_PERMISSIONS.map(p => p.category)));
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          title="Role-Based Access Control (RBAC)"
-          subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
-        />
-
-        <main className="flex-1 p-6 max-w-7xl w-full mx-auto space-y-6">
+    <AppLayout
+      title="Role-Based Access Control (RBAC)"
+      subtitle="Ministry of Rural Development • Department of Land Resources (DoLR)"
+      requiredPermission="ROLE_VIEW"
+    >
+      <div className="space-y-6">
           {actionMessage && (
             <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-xs font-semibold text-emerald-800 flex items-center gap-2 shadow-sm animate-fade-in">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -285,7 +287,6 @@ export default function RolesPage() {
               );
             })}
           </div>
-        </main>
 
         {/* Modal for Edit / Create Role */}
         {(editingRole || isCreateModalOpen) && (
@@ -436,6 +437,6 @@ export default function RolesPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }

@@ -1,38 +1,26 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Bell, Shield, HelpCircle, CheckCircle2, User as UserIcon, LogOut } from 'lucide-react';
+import { Search, Bell, Shield, HelpCircle, CheckCircle2, User as UserIcon, LogOut, Menu } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthContext';
 
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+  onToggleSidebar?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   title = 'Land Record Modernization & Validation System',
-  subtitle = 'Ministry of Rural Development • Department of Land Resources'
+  subtitle = 'Ministry of Rural Development • Department of Land Resources',
+  onToggleSidebar
 }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [unreadCount, setUnreadCount] = useState<number>(3);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-
-  useEffect(() => {
-    async function fetchSession() {
-      try {
-        const res = await fetch('/api/auth/me');
-        const data = await res.json();
-        if (data.success) {
-          setCurrentUser(data.data);
-        }
-      } catch {
-        // ignore
-      }
-    }
-    fetchSession();
-  }, []);
+  const { currentUser } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,15 +39,30 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-      <div>
-        <h1 className="text-base font-bold text-slate-900 leading-tight flex items-center gap-2">
-          {title}
-          <span className="text-[10px] font-normal px-2 py-0.5 bg-slate-100 text-slate-700 rounded border border-slate-200 font-mono">
-            DILRMP Compliant
-          </span>
-        </h1>
-        <p className="text-xs text-slate-500">{subtitle}</p>
+    <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      <div className="flex items-center min-w-0 mr-2">
+        {/* Mobile Hamburger Menu Button */}
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            type="button"
+            className="lg:hidden p-2 -ml-1 mr-2 text-slate-600 hover:text-slate-900 rounded-md hover:bg-slate-100 transition flex-shrink-0"
+            title="Open Menu"
+            aria-label="Toggle navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
+        <div className="min-w-0">
+          <h1 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 leading-tight flex items-center gap-1.5 sm:gap-2 truncate">
+            <span className="truncate">{title}</span>
+            <span className="hidden sm:inline-block text-[10px] font-normal px-2 py-0.5 bg-slate-100 text-slate-700 rounded border border-slate-200 font-mono flex-shrink-0">
+              DILRMP Compliant
+            </span>
+          </h1>
+          <p className="text-[10px] sm:text-xs text-slate-500 truncate hidden xs:block">{subtitle}</p>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
