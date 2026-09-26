@@ -337,14 +337,65 @@ export default function DocumentUploadPage() {
     setVillage(detection.village);
     setSelectedDataset(detection.dataset);
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setPreviewUrl(event.target.result as string);
-      }
-      setTimeout(() => setIsScanningModel(false), 350);
-    };
-    reader.readAsDataURL(file);
+    const isImage = file.type.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp|tif|tiff)$/i.test(file.name);
+
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const rawData = event.target?.result as string;
+        if (!rawData) {
+          setIsScanningModel(false);
+          return;
+        }
+
+        const img = new Image();
+        img.onload = () => {
+          // Scale to reasonable maximum dimensions (e.g. 2000px) and compress to JPEG
+          // This keeps OCR quality crystal-clear while dropping payload from 3-10MB down to < 500KB
+          const MAX_DIM = 2000;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_DIM || height > MAX_DIM) {
+            if (width > height) {
+              height = Math.round((height * MAX_DIM) / width);
+              width = MAX_DIM;
+            } else {
+              width = Math.round((width * MAX_DIM) / height);
+              height = MAX_DIM;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.86);
+            setPreviewUrl(compressed);
+          } else {
+            setPreviewUrl(rawData);
+          }
+          setIsScanningModel(false);
+        };
+        img.onerror = () => {
+          setPreviewUrl(rawData);
+          setIsScanningModel(false);
+        };
+        img.src = rawData;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setPreviewUrl(event.target.result as string);
+        }
+        setIsScanningModel(false);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const applyPreset = (preset: typeof PRESETS[0]) => {
@@ -390,13 +441,28 @@ export default function DocumentUploadPage() {
           district,
           taluk,
           village,
-          fileUrl: previewUrl,
           previewUrl: previewUrl,
           mimeType: isPdf ? 'application/pdf' : 'image/jpeg',
           fileSize: fileSizeText,
           autoProcess: autoProcess
         })
       });
+
+      if (!res.ok) {
+        let errMsg = `Upload failed with status ${res.status}`;
+        try {
+          const errData = await res.json();
+          errMsg = errData.message || errData.error || errMsg;
+        } catch {
+          const text = await res.text().catch(() => '');
+          if (res.status === 413 || text.includes('Request Entity Too Large')) {
+            errMsg = 'Document scan exceeds the server payload limit (4.5 MB). The image has been compressed; please try submitting again or use a smaller scan.';
+          } else if (text) {
+            errMsg = text;
+          }
+        }
+        throw new Error(errMsg);
+      }
 
       const data = await res.json();
       if (data.success) {
