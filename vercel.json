@@ -1,16 +1,4 @@
 {
-  "version": 2,
-  "name": "sih-2026-land-record-system",
-  "builds": [
-    {
-      "src": "sih-app/package.json",
-      "use": "@vercel/next"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/sih-app/$1"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs"
 }
