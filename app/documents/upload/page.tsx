@@ -93,48 +93,6 @@ const PRESETS = [
     dataset: 'darknight054/indic-mozhi-ocr',
     tag: 'Real User Scan',
     detectedSummary: 'Bengali Script • Khatian Record of Rights Form (Dag No. 412/A, Sunirmal Banerjee)'
-  },
-  {
-    name: 'Tamil Nadu Vintage Patta (1988)',
-    fileName: 'Kovilur_Patta_1988_Survey145.jpg',
-    previewUrl: '/documents/sample-patta-1.jpg',
-    documentType: 'Patta' as DocumentType,
-    language: 'Tamil',
-    state: 'Tamil Nadu',
-    district: 'Madurai',
-    taluk: 'Madurai North',
-    village: 'Kovilur',
-    dataset: 'c3rl/IIIT-INDIC-HW-WORDS-Tamil',
-    tag: 'Archival Preset',
-    detectedSummary: 'Tamil Script • Kovilur Village Patta No. 3042 (2.45 Acres, Madurai)'
-  },
-  {
-    name: 'UP Jamabandi Khasra (1994)',
-    fileName: 'Varanasi_Khasra_248_1B_1994.jpg',
-    previewUrl: '/documents/sample-khasra-1.jpg',
-    documentType: 'Historical register' as DocumentType,
-    language: 'Hindi',
-    state: 'Uttar Pradesh',
-    district: 'Varanasi',
-    taluk: 'Sadar',
-    village: 'Shivpur',
-    dataset: 'c3rl/IIIT-INDIC-HW-WORDS-Hindi',
-    tag: 'Archival Preset',
-    detectedSummary: 'Hindi Devanagari • Khasra 248/1-B Khatauni Record (Shivpur, Varanasi)'
-  },
-  {
-    name: 'Maharashtra Satbara 7/12 Extract',
-    fileName: 'Pune_Haveli_Satbara_7_12.jpg',
-    previewUrl: '/documents/sample-satbara-1.jpg',
-    documentType: 'Land ownership register' as DocumentType,
-    language: 'Marathi',
-    state: 'Maharashtra',
-    district: 'Pune',
-    taluk: 'Haveli',
-    village: 'Wagholi',
-    dataset: 'darknight054/indic-mozhi-ocr',
-    tag: 'Archival Preset',
-    detectedSummary: 'Marathi Script • Satbara 7/12 Extract (Gat No. 312/4, Haveli, Pune)'
   }
 ];
 
@@ -493,7 +451,7 @@ export default function DocumentUploadPage() {
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider font-mono flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                Quick Archival Demonstration Presets (Real Scans &amp; Benchmarks)
+                Quick Demonstration Presets (Original Land Record Scans)
               </span>
               <span className="text-[11px] text-indigo-600 font-semibold">
                 Click any scan below to auto-load &amp; auto-detect
